@@ -3,7 +3,7 @@ import {CritterSwitcher} from "./CritterSwitcher";
 import userEvent from "@testing-library/user-event";
 
 test('critter switcher starts showing elephant', () => {
-    render(<CritterSwitcher/>);
+    render(<CritterSwitcher randomGenerator={() => 0}/>);
 
     const critterSection = screen.getByText("Critter!!!");
     expect(critterSection).toBeInTheDocument();
@@ -11,13 +11,14 @@ test('critter switcher starts showing elephant', () => {
 });
 
 test('critter switcher has a button', () => {
-    render(<CritterSwitcher/>);
+    render(<CritterSwitcher randomGenerator={() => 0}/>);
     const changeButton = screen.getByRole("button", {name: "Change Critter"});
     expect(changeButton).toBeEnabled();
 });
 
 test('hitting the switcher button will change the critter', async () => {
-    render(<CritterSwitcher/>);
+    const randomer = () => 1;
+    render(<CritterSwitcher randomGenerator={randomer}/>);
 
     const changeButton = screen.getByRole("button", {name: "Change Critter"});
 
@@ -26,4 +27,30 @@ test('hitting the switcher button will change the critter', async () => {
     const critterSection = screen.getByText("Critter!!!");
     expect(critterSection).toBeInTheDocument();
     expect(within(critterSection).getByText("Chameleon")).toBeInTheDocument()
+});
+
+test('hitting the switcher button will change the critter using the randomer', async () => {
+    const randomer = () => 2;
+    render(<CritterSwitcher randomGenerator={randomer}/>);
+
+    const changeButton = screen.getByRole("button", {name: "Change Critter"});
+
+    await userEvent.click(changeButton);
+
+    const critterSection = screen.getByText("Critter!!!");
+    expect(critterSection).toBeInTheDocument();
+    expect(within(critterSection).getByText("Hummingbird")).toBeInTheDocument()
+});
+
+test('hitting the switcher button when the number is big will still change the critter', async () => {
+    const randomer = () => 6;
+    render(<CritterSwitcher randomGenerator={randomer}/>);
+
+    const changeButton = screen.getByRole("button", {name: "Change Critter"});
+
+    await userEvent.click(changeButton);
+
+    const critterSection = screen.getByText("Critter!!!");
+    expect(critterSection).toBeInTheDocument();
+    expect(within(critterSection).getByText("Elephant")).toBeInTheDocument()
 });
